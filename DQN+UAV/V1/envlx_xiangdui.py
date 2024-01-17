@@ -29,7 +29,7 @@ class DroneEnv(gym.Env):
         #UAV的绝对坐标
         self.xy=[100,100]
         # 定义起点、终点和障碍物
-        self.heading = 0
+        self.heading = 0.5*np.pi
         self.goal = [900, 900]
         #匀速
         self.v = 20
@@ -70,7 +70,7 @@ class DroneEnv(gym.Env):
         self.done1 = False
         # 初始化无人机状态
         self.xy = [100, 100]
-        self.heading = 0
+        self.heading = 0.5*np.pi
         self.drone_state[0] = self.get_angle()
         for i in range(1, 10):
             self.drone_state[i] = self.get_d8(i)
@@ -92,6 +92,9 @@ class DroneEnv(gym.Env):
             d_lod =  prev_state[10]
             return d_lod - d_new + self.step_penalty
     def get_angle(self):#返回航向角
+        if self.heading > 2*np.pi:
+            self.heading -= 2*np.pi
+
         return self.heading
     def get_d8(self, k):#返回8个测距仪的数据
         return 50
@@ -105,10 +108,8 @@ class DroneEnv(gym.Env):
         dx = self.xy[0] - self.goal[0]
         dy = self.xy[1] - self.goal[1]
         # 计算角度（弧度）
-        angle_rad = math.atan2(dy, dx)
-        # 将弧度转换为角度
-        angle_deg = math.degrees(angle_rad)
-        return angle_deg
+        angle_rad = math.atan2(-dy, -dx)
+        return angle_rad - self.heading
     def determine(self):
 
         if (self.get_d2goal() < self.r_goal):
