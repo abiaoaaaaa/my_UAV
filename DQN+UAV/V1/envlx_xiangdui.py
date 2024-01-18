@@ -29,12 +29,14 @@ class DroneEnv(gym.Env):
         #UAV的绝对坐标
         self.xy=[100,100]
         # 定义起点、终点和障碍物
-        self.heading = 0.5*np.pi
+        self.heading = 0.5*np.pi*0.5
         self.goal = [900, 900]
         #匀速
         self.v = 20
         #状态空间
         self.drone_state = [0,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]
+        self.normalized = [2*np.pi, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, 1200, 2*np.pi]
+        self.observation = [0,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]
         self.t_step = 1  # 时间步
 
 
@@ -61,8 +63,11 @@ class DroneEnv(gym.Env):
         self.determine()
         # 计算奖励
         reward = self.calculate_reward(prev_state)
-
-        return self.drone_state, reward, self.done1
+        #标准化状态空间
+        for i in range(12):
+            #self.observation[i] = (self.drone_state[i] - 0.5 * self.normalized[i]) /(0.5 * self.normalized[i])
+            self.observation[i] = self.drone_state[i] / self.normalized[i]
+        return self.observation, reward, self.done1
 
 
     def reset(self):
@@ -70,13 +75,18 @@ class DroneEnv(gym.Env):
         self.done1 = False
         # 初始化无人机状态
         self.xy = [100, 100]
-        self.heading = 0.5*np.pi
+        self.heading = 0
         self.drone_state[0] = self.get_angle()
         for i in range(1, 10):
             self.drone_state[i] = self.get_d8(i)
         self.drone_state[10] = self.get_d2goal()
         self.drone_state[11] = self.get_angle2goal()
-        return self.drone_state
+        # 标准化状态空间
+        for i in range(12):
+            #self.observation[i] = (self.drone_state[i] - 0.5 * self.normalized[i]) / (0.5 * self.normalized[i])
+            self.observation[i] = self.drone_state[i] / self.normalized[i]
+
+        return self.observation
 
     def render(self):
         # 可选的渲染方法，用于可视化环境
@@ -90,7 +100,7 @@ class DroneEnv(gym.Env):
         else:
             d_new = self.drone_state[10]
             d_lod =  prev_state[10]
-            return d_lod - d_new + self.step_penalty
+            return (d_lod - d_new)*2 + self.step_penalty
     def get_angle(self):#返回航向角
         if self.heading > 2*np.pi:
             self.heading -= 2*np.pi
