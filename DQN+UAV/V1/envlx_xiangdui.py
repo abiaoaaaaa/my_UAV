@@ -19,7 +19,7 @@ class DroneEnv(gym.Env):
         # 定义状态空间和动作空间
         #状态空间x,y,v,航向角
         self.d=50   #测距仪的范围
-        self.observation_space = gym.spaces.Box(low=np.array([-1*np.pi, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1*np.pi]), high=np.array([np.pi,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=np.array([-1*np.pi,  0, -1*np.pi]), high=np.array([np.pi, self.d, np.pi]), dtype=np.float32)
         #地图边界
         self.space1 = gym.spaces.Box(low=np.array([0, 0]), high=np.array([1000, 1000]), dtype=np.float32)
         #动作空间角速度
@@ -34,9 +34,9 @@ class DroneEnv(gym.Env):
         #匀速
         self.v = 20
         #状态空间
-        self.drone_state = [0,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]
-        self.normalized = [2*np.pi, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, 1200, 2*np.pi]
-        self.observation = [0,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]
+        self.drone_state = [0,self.d, np.pi]
+        self.normalized = [2*np.pi, 1200, np.pi]
+        self.observation = [0,self.d, np.pi]
         self.t_step = 1  # 时间步
 
 
@@ -54,19 +54,18 @@ class DroneEnv(gym.Env):
         self.xy[0] += self.v * self.t_step * math.cos(self.heading) # 更新x坐标
         self.xy[1] += self.v * self.t_step * math.sin(self.heading)  # 更新y坐标
         self.drone_state[0] = self.get_angle()
-        for i in range(1, 10):
-            self.drone_state[i] = self.get_d8(i)
-        self.drone_state[10] = self.get_d2goal()
-        self.drone_state[11] = self.get_angle2goal()
+        self.drone_state[1] = self.get_d2goal()
+        self.drone_state[2] = self.get_angle2goal()
 
         # 判断是否到达终点
         self.determine()
         # 计算奖励
         reward = self.calculate_reward(prev_state)
         #标准化状态空间
-        for i in range(12):
+        for i in range(3):
+            self.observation[i] = self.drone_state[i]
             #self.observation[i] = (self.drone_state[i] - 0.5 * self.normalized[i]) /(0.5 * self.normalized[i])
-            self.observation[i] = self.drone_state[i] / self.normalized[i]
+            #self.observation[i] = self.drone_state[i] / self.normalized[i]
         return self.observation, reward, self.done1
 
 
@@ -77,14 +76,13 @@ class DroneEnv(gym.Env):
         self.xy = [100, 100]
         self.heading = 0
         self.drone_state[0] = self.get_angle()
-        for i in range(1, 10):
-            self.drone_state[i] = self.get_d8(i)
-        self.drone_state[10] = self.get_d2goal()
-        self.drone_state[11] = self.get_angle2goal()
+        self.drone_state[1] = self.get_d2goal()
+        self.drone_state[2] = self.get_angle2goal()
         # 标准化状态空间
-        for i in range(12):
+        for i in range(3):
+            self.observation[i] = self.drone_state[i]
             #self.observation[i] = (self.drone_state[i] - 0.5 * self.normalized[i]) / (0.5 * self.normalized[i])
-            self.observation[i] = self.drone_state[i] / self.normalized[i]
+            #.observation[i] = self.drone_state[i] / self.normalized[i]
 
         return self.observation
 
@@ -98,8 +96,8 @@ class DroneEnv(gym.Env):
         if (self.xy[0] < self.space1.low[0] or self.xy[0] > self.space1.high[0] or self.xy[1] < self.space1.low[1] or self.xy[1] > self.space1.high[1]):
             return 0 + self.step_penalty
         else:
-            d_new = self.drone_state[10]
-            d_lod =  prev_state[10]
+            d_new = self.drone_state[1]
+            d_lod =  prev_state[1]
             return (d_lod - d_new)*2 + self.step_penalty
     def get_angle(self):#返回航向角
         if self.heading > 2*np.pi:
@@ -119,7 +117,8 @@ class DroneEnv(gym.Env):
         dy = self.xy[1] - self.goal[1]
         # 计算角度（弧度）
         angle_rad = math.atan2(-dy, -dx)
-        return angle_rad - self.heading
+        diff = (self.heading - angle_rad+ math.pi) % (2 * math.pi) - math.pi
+        return diff
     def determine(self):
 
         if (self.get_d2goal() < self.r_goal):
