@@ -131,14 +131,6 @@ class DroneEnv(gym.Env):
     def _human_render(self):
         # Implement human-readable rendering logic here
         plt.scatter(self.xy[0], self.xy[1], marker='o', color='red', label='Drone')
-        plt.scatter(self.goal[0], self.goal[1], marker='x', color='green', label='Goal')
-        plt.xlim(self.space1.low[0], self.space1.high[0])
-        plt.ylim(self.space1.low[1], self.space1.high[1])
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.legend()
-        plt.title('Drone Environment')
-        plt.pause(0.01)
         #plt.show()
 
     def _rgb_array_render(self):
