@@ -19,7 +19,7 @@ model = DQN(
     target_update_interval=250,
     policy_kwargs={"net_arch" : [256, 256]},     # 这里代表隐藏层为2层256个节点数的网络
     verbose=1,                                   # verbose=1代表打印训练信息，如果是0为不打印，2为打印调试信息
-    tensorboard_log="./tensorboard/env-v1/"  # 训练数据保存目录，可以用tensorboard查看
+    tensorboard_log="./tensorboard/env-v2/"  # 训练数据保存目录，可以用tensorboard查看
 )
 # 开始训练
 model.learn(total_timesteps=1e5)

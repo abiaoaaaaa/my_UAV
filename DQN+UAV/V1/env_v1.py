@@ -29,14 +29,17 @@ class DroneEnv(gym.Env):
         self.xy=[100,100]
         # 定义起点、终点和障碍物
         self.heading = 0.5*np.pi*0.5
-        self.goal = [300, 900]
+        self.goal = [900, 900]
         #匀速
         self.v = 20
+        self.t_step = 1  # 时间步
+
+
         #状态空间
         self.drone_state = [np.pi]
         self.normalized = [2*np.pi, 1200, np.pi]
-        self.observation = [ np.pi]
-        self.t_step = 1  # 时间步
+        self.observation = [np.pi]
+
         # 用于存储环境信息的字典
         self.info = {"collision": False}
 
@@ -54,7 +57,6 @@ class DroneEnv(gym.Env):
         self.heading += self.change[action]# 更新航向角
         self.xy[0] += self.v * self.t_step * math.cos(self.heading) # 更新x坐标
         self.xy[1] += self.v * self.t_step * math.sin(self.heading)  # 更新y坐标
-
         self.drone_state[0] = self.get_angle2goal()
 
         # 判断是否到达终点
