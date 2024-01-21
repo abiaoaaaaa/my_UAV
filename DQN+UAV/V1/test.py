@@ -3,8 +3,8 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 import gym
-import envlx_only
-env = envlx_only.DroneEnv()
+import env_v1
+env = env_v1.DroneEnv()
 # 在每个 episode 的开始调用一次 env.render()
 state = env.reset()
 env.render(mode='human')

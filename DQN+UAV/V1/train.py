@@ -4,8 +4,8 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 import gym
-import envlx_only
-env = envlx_only.DroneEnv()
+import env_v1
+env = env_v1.DroneEnv()
 # 把环境向量化，如果有多个环境写成列表传入DummyVecEnv中，可以用一个线程来执行多个环境，提高训练效率
 #env = DummyVecEnv([lambda : env])
 # 定义一个DQN模型，设置其中的各个参数
@@ -19,7 +19,7 @@ model = DQN(
     target_update_interval=250,
     policy_kwargs={"net_arch" : [256, 256]},     # 这里代表隐藏层为2层256个节点数的网络
     verbose=1,                                   # verbose=1代表打印训练信息，如果是0为不打印，2为打印调试信息
-    tensorboard_log="./tensorboard/CartPole-v0/"  # 训练数据保存目录，可以用tensorboard查看
+    tensorboard_log="./tensorboard/env-v1/"  # 训练数据保存目录，可以用tensorboard查看
 )
 # 开始训练
 model.learn(total_timesteps=1e5)
