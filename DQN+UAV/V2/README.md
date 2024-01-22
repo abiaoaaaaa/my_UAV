@@ -1,4 +1,6 @@
 # my_UAV障碍版本
+## 环境设置
+![img.png](image/env_v2.png)
 ## 可视化
 ![img.png](image/outcome1.png)
 ## 收敛曲线
