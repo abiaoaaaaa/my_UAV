@@ -27,5 +27,5 @@ mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10, render
 #env.close()
 print("mean_reward:",mean_reward,"std_reward:",std_reward)
 # 保存模型到相应的目录
-model.save("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V1.1/TrainedModel/Actor3.pkl")
+model.save("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V1.0.1/TrainedModel/Actor3.pkl")
 

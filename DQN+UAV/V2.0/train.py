@@ -4,8 +4,8 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 import gym
-import env_v1
-env = env_v1.DroneEnv()
+import env_v2
+env = env_v2.DroneEnv()
 # 把环境向量化，如果有多个环境写成列表传入DummyVecEnv中，可以用一个线程来执行多个环境，提高训练效率
 #env = DummyVecEnv([lambda : env])
 # 定义一个DQN模型，设置其中的各个参数
@@ -28,5 +28,5 @@ mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10, render
 #env.close()
 print("mean_reward:",mean_reward,"std_reward:",std_reward)
 # 保存模型到相应的目录
-model.save("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V1/TrainedModel/Actor1.pkl")
+model.save("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V2.0/TrainedModel/Actor2.pkl")
 

@@ -9,7 +9,7 @@ env = env_v1.DroneEnv()
 state = env.reset()
 env.render(mode='human')
 
-model = DQN.load("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V1/TrainedModel/Actor1.pkl")
+model = DQN.load("/DQN+UAV/V1.0/TrainedModel/Actor1.pkl")
 
 done = False
 r = 0
