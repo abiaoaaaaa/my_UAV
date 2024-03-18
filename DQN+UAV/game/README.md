@@ -1,9 +1,11 @@
-#  V1.2（使用DDPG连续动作空间，无障碍，目标点是动态移动的）ing
+# my_UAV无障碍版本(done)DDPG
 ## 环境配置
 ![img.png](image/env_v1.png)
 ## 运行结果
 ![img_1.png](image/outcome1.png)
 ![img_1.png](image/outcome2.png)
-
+## 泛化分析，目标点设置300，900.
+![img_1.png](image/fanhua1.png)
 ## 动作空间change = [-0.5*np.pi,0.5*np.pi]#转向信号
-### 模型备注：Actor3 DDPG的模型，Actor1.2 未知DDPG的模型
+
+

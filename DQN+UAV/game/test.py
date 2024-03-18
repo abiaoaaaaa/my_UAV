@@ -11,7 +11,7 @@ state,_ = env.reset()
 env.render(mode='human')
 
 
-model = DDPG.load("TrainedModel/Actor1.2.pkl")
+model = DDPG.load("TrainedModel/Actor3.pkl")
 
 done = False
 r = 0
@@ -26,11 +26,10 @@ plt.title('Drone Environment')
 while not done:
     env.render(mode='human')
     action, _states = model.predict(state, deterministic=True)
-    #action = 0
     print(action)
     #print(state, action)
     next_state, reward, done, t,  info = env.step(action)
     r += reward
     state = next_state
-    print(r)
+    #print(r)
 plt.show()
