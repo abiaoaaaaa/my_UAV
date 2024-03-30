@@ -21,11 +21,11 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n
 model = DDPG("MlpPolicy", envs, verbose=1, action_noise=action_noise, tensorboard_log="./tensorboard/env_e-v1.3/",
              device="cuda")
 # 开始训练
-model.learn(total_timesteps=100000, log_interval=10)
+model.learn(total_timesteps=10000, log_interval=10)
 # 策略评估
-mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10, render=True)
+mean_reward, std_reward = evaluate_policy(model, envs, n_eval_episodes=10)
 #env.close()
 print("mean_reward:",mean_reward,"std_reward:",std_reward)
 # 保存模型到相应的目录
-model.save("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V1.3/TrainedModel/Actor_e1.3.pkl")
-
+model.save("C:/Users/10749/Desktop/my_UAV/DQN+UAV/V1.3/TrainedModel/Actor_e1.4.pkl")
+#1.4是更改每步惩罚后的
