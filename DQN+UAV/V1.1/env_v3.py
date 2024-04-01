@@ -18,7 +18,7 @@ class DroneEnv(gym.Env):
         # 定义状态空间和动作空间
         #状态空间x,y,v,航向角
         self.d=50   #测距仪的范围
-        self.observation_space = gym.spaces.Box(low=np.array([ -1*np.pi]), high=np.array([np.pi]), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=np.array([ -1*np.pi, 0]), high=np.array([np.pi, 1000]), dtype=np.float32)
         self.action_space = gym.spaces.Box(low=np.array([ -0.5*np.pi]), high=np.array([0.5*np.pi]), dtype=np.float32)
         #地图边界
         self.space1 = gym.spaces.Box(low=np.array([0, 0]), high=np.array([1000, 1000]), dtype=np.float32)
@@ -34,12 +34,13 @@ class DroneEnv(gym.Env):
         #匀速
         self.v = 20
         self.t_step = 1  # 时间步
+        self.t = 0
 
 
         #状态空间
         self.drone_state = [np.pi]
         self.normalized = [2*np.pi, 1200, np.pi]
-        self.observation = np.array([np.pi],dtype=np.float32)
+        self.observation = np.array([np.pi, 0],dtype=np.float32)
 
         # 用于存储环境信息的字典
         self.info = {"collision": False}
@@ -50,6 +51,7 @@ class DroneEnv(gym.Env):
         self.r_goal = 10 #目标半径S
         self.done1 = False
     def step(self, action):
+        self.t += 1
         # 保存上一步的状态
         prev_state = np.array(self.drone_state)
         d_lod = self.get_d2goal()
@@ -75,6 +77,7 @@ class DroneEnv(gym.Env):
         pass
     def reset(self,seed=None, options=None):
         # 重置环境，返回初始状态
+        self.t = 0
         self.done1 = False
         # 初始化无人机状态
         self.xy = [100, 100]
@@ -123,7 +126,8 @@ class DroneEnv(gym.Env):
         diff = (self.heading - angle_rad+ math.pi) % (2 * math.pi) - math.pi
         return diff
     def determine(self):
-
+        if self.t > 500:
+            self.done1 = True
         if (self.get_d2goal() < self.r_goal):
             self.done1 = True
          #判断是否超出边界
