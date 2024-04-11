@@ -12,3 +12,9 @@ env_v3_e.py---env环境
 train_e.py---训练E文件
 test.py---测试E文件
 其他文件---原来1.2的文件
+有问题，改变观察空间
+![img.png](img.png)
+改进调整噪声的范围（0.1-->0.05-->0.02)
+![img_1.png](img_1.png)
+使用归一化
+![img_2.png](img_2.png)

@@ -18,8 +18,8 @@ class DroneEnv(gym.Env):
         # 定义状态空间和动作空间
         #状态空间x,y,v,航向角
         self.d=50   #测距仪的范围
-        self.observation_space = gym.spaces.Box(low=np.array([ -1*np.pi, 0]), high=np.array([np.pi, 1000]), dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=np.array([ -0.5*np.pi]), high=np.array([0.5*np.pi]), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=np.array([ -1*np.pi]), high=np.array([np.pi]), dtype=np.float32)
+        self.action_space = gym.spaces.Box(low=np.array([-np.pi*0.03]), high=np.array([np.pi*0.03]), dtype=np.float32)
         #地图边界
         self.space1 = gym.spaces.Box(low=np.array([0, 0]), high=np.array([1000, 1000]), dtype=np.float32)
         #动作空间角速度
@@ -40,7 +40,7 @@ class DroneEnv(gym.Env):
         #状态空间
         self.drone_state = [np.pi]
         self.normalized = [2*np.pi, 1200, np.pi]
-        self.observation = np.array([np.pi, 0],dtype=np.float32)
+        self.observation = np.array([np.pi],dtype=np.float32)
 
         # 用于存储环境信息的字典
         self.info = {"collision": False}

@@ -20,14 +20,14 @@ class DroneEnv(gym.Env):
         self.d=2000   #测距仪的范围
         #观察空间
         #障碍物
-        #self.observation_space = gym.spaces.Box(low=np.array([-1*np.pi, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1*np.pi]), high=np.array([np.pi,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=np.array([-1*np.pi, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1*np.pi]), high=np.array([np.pi,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]), dtype=np.float32)
         #self.observation_space = gym.spaces.Box(low=np.array([-1*np.pi]), high=np.array([np.pi]), dtype=np.float32)
-        self.observation_space = gym.spaces.Box(low=np.array([-0.1]), high=np.array([0.1]), dtype=np.float32)
+        #self.observation_space = gym.spaces.Box(low=np.array([-0.1]), high=np.array([0.1]), dtype=np.float32)
 
 
         # 动作空间角速度,加速度
-        #self.action_space = gym.spaces.Box(low=np.array([-0.03, -1]), high=np.array([0.03, 1]), dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=np.array([-0.1]), high=np.array([0.1]), dtype=np.float32)
+        self.action_space = gym.spaces.Box(low=np.array([-0.03, -1]), high=np.array([0.03, 1]), dtype=np.float32)
+        #self.action_space = gym.spaces.Box(low=np.array([-0.03]), high=np.array([0.03]), dtype=np.float32)
         #地图边界
         self.space1 = gym.spaces.Box(low=np.array([0, 0]), high=np.array([50000, 50000]), dtype=np.float32)
 
@@ -46,12 +46,12 @@ class DroneEnv(gym.Env):
         #状态空间
         #第一个元素代表航向角的角度，八个测距仪的测量距离，倒数第二个元素代表了无人机到目标点的距离。最后一个元素代表了无人机当前朝向与目标点之间的角度差。
         #真实状态
-        self.drone_state = [0,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi]
+        self.drone_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, np.pi]
         #标准化使用
-        self.normalized = [2*np.pi, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, 30000, np.pi * 10]
+        self.normalized = [2*np.pi, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, 30000, np.pi]
         #传递给模型的观察空间
         #self.observation = np.array([0,self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, self.d, np.pi],dtype=np.float32)
-        self.observation = np.array([np.pi], dtype=np.float32)
+        self.observation = np.array([np.pi, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, np.pi], dtype=np.float32)
 
 
         # 用于存储环境信息的字典
@@ -73,7 +73,7 @@ class DroneEnv(gym.Env):
 
         # 更新状态
         self.heading += (action[0] )  # 更新航向角
-        #self.v += action[1]  # 更新速度
+        self.v += action[1]  # 更新速度
         self.v = min(self.v, 250)
         self.v = max(0, self.v)
         self.xy[0] += self.v * self.t_step * math.cos(self.heading)  # 更新x坐标
@@ -92,8 +92,8 @@ class DroneEnv(gym.Env):
         for i in range(12):
             #self.observation[i] = self.drone_state[i]
             #self.observation[i] = (self.drone_state[i] - 0.5 * self.normalized[i]) /(0.5 * self.normalized[i])
-            #self.observation[i] = self.drone_state[i] / self.normalized[i]
-            self.observation[0] = self.drone_state[11] / self.normalized[11]
+            self.observation[i] = self.drone_state[i] / self.normalized[i]
+            #self.observation[0] = self.drone_state[11] / self.normalized[11]
         return self.observation, reward, self.done1, self.info
 
     def seed(self, seed=None):
@@ -114,8 +114,8 @@ class DroneEnv(gym.Env):
         for i in range(12):
             #self.observation[i] = self.drone_state[i]
             #self.observation[i] = (self.drone_state[i] - 0.5 * self.normalized[i]) / (0.5 * self.normalized[i])
-            #self.observation[i] = self.drone_state[i] / self.normalized[i]
-            self.observation[0] = self.drone_state[11] / self.normalized[11]
+            self.observation[i] = self.drone_state[i] / self.normalized[i]
+            #self.observation[0] = self.drone_state[11] / self.normalized[11]
         return self.observation
 
     def render(self, mode='human'):
@@ -136,7 +136,7 @@ class DroneEnv(gym.Env):
             dis = self.get_distance(self.xy, k)
             if (dis<self.r_obstacles):
                 r3=self.obstacles_penalty
-        return (d_lod - d_new) * 2 + self.step_penalty
+        return (d_lod - d_new) * 2 + self.step_penalty * 3 + r3
     def get_angle(self):#返回航向角
         #print(111)
         if self.heading > 2*np.pi:
@@ -147,15 +147,15 @@ class DroneEnv(gym.Env):
         return self.heading
     def get_d8(self):#返回8个测距仪的数据
         for i in  range(9):
-            self.drone_state[1+i] = self.d
+            self.drone_state[1+i] = 0
         for k in self.obstacles:
             dis = self.get_distance(self.xy,k)
             if (dis<self.d):
                 angle = self.get_angle2obstacles(k)
                 index = ((angle + np.pi)*9)//(2*np.pi)
                 index = int(index)
-                if (self.drone_state[1 + index] > dis) :
-                    self.drone_state[1 + index] = dis
+                if (self.drone_state[1 + index] < self.d - dis) :
+                    self.drone_state[1 + index] = self.d - dis
 
 
 

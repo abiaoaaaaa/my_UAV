@@ -21,7 +21,7 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n
 model = DDPG("MlpPolicy", envs, verbose=1, action_noise=action_noise, tensorboard_log="./tensorboard/env-v1.2/",
              device="cuda")
 # 开始训练
-model.learn(total_timesteps=100000, log_interval=10)
+model.learn(total_timesteps=10000, log_interval=10)
 # 策略评估
 mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10, render=True)
 #env.close()

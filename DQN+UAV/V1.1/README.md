@@ -22,3 +22,8 @@
 ### 3.4 观测空间改为[pi,0]
 ![img.png](image/img2.png)
 ![img.png](image/img1.png)
+
+## 动作空间规范化【-pi/6--pi/6】
+![img.png](image6/img.png)
+【-pi*0.06--pi*0.06】
+![img.png](img.png)

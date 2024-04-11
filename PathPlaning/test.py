@@ -23,7 +23,7 @@ plt.title('Drone Environment')
 state = env.reset()
 env.render(mode='human')
 
-model = DDPG.load("TrainedModel/Actor_w0.1.pkl")
+model = DDPG.load("TrainedModel/Actor_Normalize_aw_cejv.pkl")
 
 done = False
 r = 0

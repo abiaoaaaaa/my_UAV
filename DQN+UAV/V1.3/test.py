@@ -12,10 +12,11 @@ env.render(mode='human')
 
 
 #model_p = DDPG.load("TrainedModel/Actor1.2.pkl")
-model_e = DDPG.load("TrainedModel/Actor_e1.4.pkl")
+model_e = DDPG.load("TrainedModel/Actor_e_reaction.pkl")
 t1 = 0
 done = False
 r = 0
+action = []
 #plt.figure()
 #plt.scatter(env.goal[0], env.goal[1], marker='x', color='green', label='Goal')
 plt.xlim(env.space1.low[0], env.space1.high[0])
@@ -30,6 +31,7 @@ while not done:
     env.render(mode='human')
     #action_p, _states_p = model_p.predict(state, deterministic=True)
     action_e, _states_e = model_e.predict(state, deterministic=True)
+    action.append(action_e)
     #action_e = 0
     #print(action)
     print(state, action_e)
@@ -38,4 +40,6 @@ while not done:
     state = next_state
     print(r)
 print(t1)
+plt.show()
+plt.plot(action)
 plt.show()
