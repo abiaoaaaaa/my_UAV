@@ -16,14 +16,14 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 class DroneEnv(gym.Env):
     def __init__(self):
         #加载追击者模型
-        self.model_p = DDPG.load("TrainedModel/Actor1.2.pkl")
+        self.model_p = DDPG.load("TrainedModel/Actor1.1_reaction.pkl")
         self.t=0
         super(DroneEnv, self).__init__()
         # 定义状态空间和动作空间
         #状态空间x,y,v,航向角
         #self.d=50   #测距仪的范围
         self.observation_space = gym.spaces.Box(low=np.array([ -1*np.pi]), high=np.array([np.pi]), dtype=np.float32)
-        self.action_space = gym.spaces.Box(low=np.array([ -0.5*np.pi]), high=np.array([0.5*np.pi]), dtype=np.float32)
+        self.action_space = gym.spaces.Box(low=np.array([ -np.pi*0.03]), high=np.array([np.pi*0.03]), dtype=np.float32)
         #地图边界
         self.space1 = gym.spaces.Box(low=np.array([0, 0]), high=np.array([2000, 2000]), dtype=np.float32)
         #动作空间角速度
@@ -34,8 +34,8 @@ class DroneEnv(gym.Env):
         self.xy_p=[100,100]
         self.xy_e = [900, 900]
         # 定义初始航向角
-        self.heading_p = 0.5*np.pi*0.5
-        self.heading_e = 0.5 * np.pi * 0.5
+        self.heading_p = -np.pi
+        self.heading_e = 0
         
 
         #匀速
@@ -100,9 +100,10 @@ class DroneEnv(gym.Env):
         self.done1 = False
         # 初始化无人机状态
         self.xy_p = [100, 100]
-        self.xy_e = [900, 900]
-        self.heading_p = 0
-        self.heading_e = 0.5 * np.pi * 0.5
+        self.xy_e = [600, 900]
+        # 定义初始航向角
+        self.heading_p = np.pi * 0.5
+        self.heading_e = np.pi * 0.5
         self.drone_state_p[0] = self.get_angle2goal()
         self.drone_state_e[0] = self.get_angle2p()
         # 标准化状态空间
@@ -112,7 +113,7 @@ class DroneEnv(gym.Env):
             #self.observation[i] = (self.drone_state_p[i] - 0.5 * self.normalized[i]) / (0.5 * self.normalized[i])
             #.observation[i] = self.drone_state_p[i] / self.normalized[i]
 
-        return self.observation_e,self.info
+        return self.observation_e, self.info
 
     def render(self, mode='human'):
         if mode == 'human':

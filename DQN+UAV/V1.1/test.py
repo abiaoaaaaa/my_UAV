@@ -11,7 +11,7 @@ state,_ = env.reset()
 env.render(mode='human')
 
 
-model = DDPG.load("TrainedModel/Actor3.pkl")
+model = DDPG.load("TrainedModel/Actor1.1_reaction.pkl")
 
 done = False
 r = 0
