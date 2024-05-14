@@ -30,8 +30,6 @@ plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 from stable_baselines3 import DDPG
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
-
-
 class DroneEnv(gym.Env):
     def __init__(self):
         #加载逃逸者模型
@@ -50,13 +48,12 @@ class DroneEnv(gym.Env):
         #动作空间角速度
         #self.action_space = gym.spaces.Discrete(3)
         #self.change = [-0.2*np.pi, 0, 0.2*np.pi]#转向信号
-
         #UAV的坐标
-        self.xy_p=[100,100]
-        self.xy_e = [900, 900]
+        self.xy_p=[0,0]
+        self.xy_e = [0, 0]
         # 定义初始航向角
-        self.heading_p = 0.5*np.pi*0.5
-        self.heading_e = 0.5 * np.pi * 0.5
+        self.heading_p = 0
+        self.heading_e = 0
         
 
         #匀速
@@ -83,7 +80,6 @@ class DroneEnv(gym.Env):
         #self.step_penalty = 1
         self.r_goal = 50 #目标半径S
         self.done1 = False
-
         #定义训练TP的网络
         self.file_path = "train.csv"
         self.xy_e_next = [0, 0]
@@ -91,7 +87,7 @@ class DroneEnv(gym.Env):
         self.data = np.array([[0 for _ in range(2)] for _ in range(10)], dtype='float64')
 
     def step(self, action):
-        #self.save_data_to_csv(self.file_path)
+        self.save_data_to_csv(self.file_path)
         self.t += 1
         d_lod = self.get_d2goal()
         action_e, _states = self.model_e.predict(self.observation_e, deterministic=True)
@@ -127,21 +123,19 @@ class DroneEnv(gym.Env):
             #self.observation[i] = (self.drone_state_p[i] - 0.5 * self.normalized[i]) /(0.5 * self.normalized[i])
             #self.observation[i] = self.drone_state_p[i] / self.normalized[i]
         return self.observation_p, reward, self.done1, False,  self.info
-
     def seed(self, seed=None):
         pass
     def reset(self,seed=None, options=None):
-
         #self.save_data_to_csv(self.file_path)
         self.t = 0
         self.id += 1
         # 重置环境，返回初始状态
         self.done1 = False
         # 初始化无人机状态
-        self.xy_p = [100, 100]
-        self.xy_e = [900, 900]
+        self.xy_p = [500, 500]
+        self.xy_e = [random.randint(0, 1000), random.randint(0, 1000)]
         self.heading_p = 0
-        self.heading_e = 0.5 * np.pi * 0.5
+        self.heading_e = 0
         self.drone_state_p[0] = self.get_angle2goal()
         self.drone_state_e[0] = self.get_angle2p()
         #初始化预测窗口
@@ -157,9 +151,7 @@ class DroneEnv(gym.Env):
             self.observation_p[i + 1] = self.get_angle2goal_next()
             #self.observation[i] = (self.drone_state_p[i] - 0.5 * self.normalized[i]) / (0.5 * self.normalized[i])
             #.observation[i] = self.drone_state_p[i] / self.normalized[i]
-
         return self.observation_p, self.info
-
     def save_data_to_csv(self, file_path):
         #print(111)
         # 如果文件不存在，则创建一个新文件，并写入列头

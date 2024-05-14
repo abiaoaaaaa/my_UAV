@@ -35,7 +35,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 class DroneEnv(gym.Env):
     def __init__(self):
-        self.t_nape = 3
+        self.t_nape = 0
         #加载逃逸者模型
         self.model_TP = load_model("./model.h5")
         self.model_e = DDPG.load("TrainedModel/Actor_e1.4.pkl")
@@ -96,11 +96,10 @@ class DroneEnv(gym.Env):
     def step(self, action):
         #self.save_data_to_csv(self.file_path)
         self.t += 1
-        if(self.t % self.t_nape == 0):
-            self.data_pre = self.data_true
         d_lod = self.get_d2goal()
         action_e, _states = self.model_e.predict(self.observation_e, deterministic=True)
         #action_e = 0.1
+
         # 执行E动作
         self.heading_e += action_e  # 更新航向角
         self.xy_e[0] += self.v_e * self.t_step * math.cos(self.heading_e)  # 更新x坐标
@@ -109,14 +108,25 @@ class DroneEnv(gym.Env):
         self.heading_p += action  # 更新航向角
         self.xy_p[0] += self.v_p * self.t_step * math.cos(self.heading_p)  # 更新x坐标
         self.xy_p[1] += self.v_p * self.t_step * math.sin(self.heading_p)  # 更新y坐标
+
         #预测E的下一个位置
         self.xy_e_next = self.model_TP(self.data_pre.reshape(1, 10, 2)/2000)
         self.xy_e_next = self.xy_e_next[0]
         self.xy_e_next = self.xy_e_next*2000
-        #print(self.xy_e_next,self.xy_e)
+
+        # 将预测值记录在data_pre
         self.data_pre = np.insert(self.data_pre, self.data_pre.shape[0], self.xy_e_next, axis=0)[1:]
         # 将真实值记录在data_true
         self.data_true = np.insert(self.data_true, self.data_true.shape[0], self.xy_e, axis=0)[1:]
+
+        # 触发
+        if (self.t % self.t_nape == 0):
+            self.data_pre = self.data_true
+
+        # 预测E的下一个位置
+        self.xy_e_next = self.model_TP(self.data_pre.reshape(1, 10, 2) / 2000)
+        self.xy_e_next = self.xy_e_next[0]
+        self.xy_e_next = self.xy_e_next * 2000
 
         # 保存上一步的状态
         prev_state = np.array(self.drone_state_p)
@@ -129,6 +139,7 @@ class DroneEnv(gym.Env):
         self.determine()
         # 计算奖励
         reward = self.calculate_reward(d_lod)
+
         #标准化状态空间
         for i in range(1):
             self.observation_e[i] = self.drone_state_e[i]
@@ -148,10 +159,10 @@ class DroneEnv(gym.Env):
         # 重置环境，返回初始状态
         self.done1 = False
         # 初始化无人机状态
-        self.xy_p = [100, 100]
-        self.xy_e = [900, 900]
+        self.xy_p = [1500, 1500]
+        self.xy_e = [800, 800]
         self.heading_p = 0
-        self.heading_e = 0.5 * np.pi * 0.5
+        self.heading_e = 0
         self.drone_state_p[0] = self.get_angle2goal()
         self.drone_state_e[0] = self.get_angle2p()
         #初始化预测窗口和真实窗口
@@ -217,8 +228,8 @@ class DroneEnv(gym.Env):
         diff = (self.heading_p - angle_rad+ math.pi) % (2 * math.pi) - math.pi
         return diff
     def get_angle2pre_goal(self):#返回到目标点的角度
-        dx = self.xy_p[0] - self.data_pre[-2][0]
-        dy = self.xy_p[1] - self.data_pre[-2][1]
+        dx = self.xy_p[0] - self.data_pre[-1][0]
+        dy = self.xy_p[1] - self.data_pre[-1][1]
         # 计算角度（弧度）
         angle_rad = math.atan2(-dy, -dx)
         diff = (self.heading_p - angle_rad+ math.pi) % (2 * math.pi) - math.pi
